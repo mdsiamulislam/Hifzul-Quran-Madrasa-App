@@ -38,6 +38,9 @@ dependencies:
   # AIP Conversation
   http: ^1.5.0
 
+  # launche URL
+  url_launcher: ^6.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

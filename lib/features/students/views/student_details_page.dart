@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../core/utils/snackbar_helper.dart';
 
 class StudentDetailsPage extends StatefulWidget {
   final Map<String, dynamic> student;
@@ -133,15 +136,16 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
               const SizedBox(height: 16),
 
               // Student Name
-              Text(
-                student['name'],
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              if (_isNotEmpty(student['name']))
+                Text(
+                  student['name'],
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
 
               const SizedBox(height: 8),
 
@@ -149,35 +153,37 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      "ID: ${student['id']}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
+                  if (_isNotEmpty(student['id'].toString()))
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "ID: ${student['id']}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      "${student['class']}-${student['section']}",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
+                  if (_isNotEmpty(student['id'])) const SizedBox(width: 12),
+                  if (_isNotEmpty(student['class']) && _isNotEmpty(student['section']))
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "${student['class']}-${student['section']}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
 
@@ -187,9 +193,12 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildQuickStat("Attendance", "${student['attendancePercentage']}%"),
-                  _buildQuickStat("Surahs", "${student['totalSurahMemorized']}"),
-                  _buildQuickStat("Rating", "${student['academicRating']}/5"),
+                  if (_isNotEmpty(student['attendancePercentage']))
+                    _buildQuickStat("Attendance", "${student['attendancePercentage']}%"),
+                  if (_isNotEmpty(student['totalSurahMemorized']))
+                    _buildQuickStat("Surahs", "${student['totalSurahMemorized']}"),
+                  if (_isNotEmpty(student['academicRating']))
+                    _buildQuickStat("Rating", "${student['academicRating']}/5"),
                 ],
               ),
             ],
@@ -234,10 +243,10 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
               _buildInfoRow("Father's Name", student['fatherName']),
               _buildInfoRow("Mother's Name", student['motherName']),
               _buildInfoRow("Date of Birth", student['dateOfBirth']),
-              _buildInfoRow("Age", "${student['age'].toString()} years"),
+              _buildInfoRow("Age", student['age'] != null ? "${student['age']} years" : null),
               _buildInfoRow("Gender", student['gender']),
               _buildInfoRow("Status", student['status']),
-            ],
+            ].whereType<Widget>().toList(),
           ),
 
           const SizedBox(height: 16),
@@ -246,12 +255,12 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
             "Contact Information",
             Icons.contact_phone_outlined,
             [
-              _buildInfoRow("Student Phone", student['phone'].toString(), isCopiable: true),
-              _buildInfoRow("Guardian Phone", student['guardianPhone'].toString().toString(), isCopiable: true),
+              _buildInfoRow("Student Phone", student['phone'], isCopiable: true),
+              _buildInfoRow("Guardian Phone", student['guardianPhone'], isCopiable: true),
               _buildInfoRow("Emergency Contact", student['emergencyContact'], isCopiable: true),
               _buildInfoRow("Email", student['email'], isCopiable: true),
               _buildInfoRow("Address", student['address']),
-            ],
+            ].whereType<Widget>().toList(),
           ),
         ],
       ),
@@ -267,11 +276,11 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
             "Academic Details",
             Icons.school_outlined,
             [
-              _buildInfoRow("Class", "${student['class']}-${student['section']}"),
-              _buildInfoRow("Roll Number", student['rollNumber'].toString()),
+              _buildInfoRow("Class", _isNotEmpty(student['class']) && _isNotEmpty(student['section']) ? "${student['class']}-${student['section']}" : null),
+              _buildInfoRow("Roll Number", student['rollNumber']),
               _buildInfoRow("Admission Date", student['admissionDate']),
               _buildInfoRow("Last Attendance", student['lastAttendance']),
-            ],
+            ].whereType<Widget>().toList(),
           ),
 
           const SizedBox(height: 16),
@@ -281,8 +290,8 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
             Icons.menu_book_outlined,
             [
               _buildInfoRow("Current Progress", student['currentProgress']),
-              _buildInfoRow("Total Surahs Memorized", student['totalSurahMemorized'].toString()),
-            ],
+              _buildInfoRow("Total Surahs Memorized", student['totalSurahMemorized']),
+            ].whereType<Widget>().toList(),
           ),
 
           const SizedBox(height: 16),
@@ -292,15 +301,17 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
 
           const SizedBox(height: 16),
 
-          _buildInfoSection(
-            "Extra Activities",
-            Icons.sports_soccer_outlined,
-            student['extraActivities']
-                .toString()
-                .split(';')
-                .map<Widget>((activity) => _buildActivityChip(activity.trim()))
-                .toList(),
-          ),
+          if (_isNotEmpty(student['extraActivities']))
+            _buildInfoSection(
+              "Extra Activities",
+              Icons.sports_soccer_outlined,
+              student['extraActivities']
+                  .toString()
+                  .split(';')
+                  .where((activity) => activity.trim().isNotEmpty)
+                  .map<Widget>((activity) => _buildActivityChip(activity.trim()))
+                  .toList(),
+            ),
         ],
       ),
     );
@@ -312,60 +323,62 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
       child: Column(
         children: [
           // Fee Status Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: student['feeStatus'] == 'Paid'
-                    ? [Colors.green[400]!, Colors.green[600]!]
-                    : [Colors.red[400]!, Colors.red[600]!],
+          if (_isNotEmpty(student['feeStatus']) && _isNotEmpty(student['monthlyFee']))
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: student['feeStatus'] == 'Paid'
+                      ? [Colors.green[400]!, Colors.green[600]!]
+                      : [Colors.red[400]!, Colors.red[600]!],
+                ),
+                borderRadius: BorderRadius.circular(16),
               ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  student['feeStatus'] == 'Paid'
-                      ? Icons.check_circle_outline
-                      : Icons.warning_outlined,
-                  color: Colors.white,
-                  size: 48,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  "Fee Status: ${student['feeStatus']}",
-                  style: const TextStyle(
+              child: Column(
+                children: [
+                  Icon(
+                    student['feeStatus'] == 'Paid'
+                        ? Icons.check_circle_outline
+                        : Icons.warning_outlined,
                     color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    size: 48,
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "Monthly Fee: ৳${student['monthlyFee']}",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
+                  const SizedBox(height: 12),
+                  Text(
+                    "Fee Status: ${student['feeStatus']}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    "Monthly Fee: ৳${student['monthlyFee']}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
 
           const SizedBox(height: 24),
 
           // Payment History (Mock Data)
-          _buildInfoSection(
-            "Recent Payments",
-            Icons.payment_outlined,
-            [
-              _buildPaymentRow("August 2024", "৳${student['monthlyFee']}", "Paid", true),
-              _buildPaymentRow("July 2024", "৳${student['monthlyFee']}", "Paid", true),
-              _buildPaymentRow("June 2024", "৳${student['monthlyFee']}", "Paid", true),
-              _buildPaymentRow("May 2024", "৳${student['monthlyFee']}", "Paid", true),
-            ],
-          ),
+          if (_isNotEmpty(student['monthlyFee']))
+            _buildInfoSection(
+              "Recent Payments",
+              Icons.payment_outlined,
+              [
+                _buildPaymentRow("August 2024", "৳${student['monthlyFee']}", "Paid", true),
+                _buildPaymentRow("July 2024", "৳${student['monthlyFee']}", "Paid", true),
+                _buildPaymentRow("June 2024", "৳${student['monthlyFee']}", "Paid", true),
+                _buildPaymentRow("May 2024", "৳${student['monthlyFee']}", "Paid", true),
+              ],
+            ),
         ],
       ),
     );
@@ -383,7 +396,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
               _buildInfoRow("Blood Group", student['bloodGroup']),
               _buildInfoRow("Medical Info", student['medicalInfo']),
               _buildInfoRow("Emergency Contact", student['emergencyContact'], isCopiable: true),
-            ],
+            ].whereType<Widget>().toList(),
           ),
 
           const SizedBox(height: 16),
@@ -430,6 +443,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
   }
 
   Widget _buildInfoSection(String title, IconData icon, List<Widget> children) {
+    if (children.isEmpty) return const SizedBox.shrink();
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -473,7 +487,8 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
     );
   }
 
-  Widget _buildInfoRow(String label, dynamic value, {bool isCopiable = false}) {
+  Widget? _buildInfoRow(String label, dynamic value, {bool isCopiable = false}) {
+    if (!_isNotEmpty(value)) return null;
     final displayValue = value?.toString() ?? '';
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -577,11 +592,12 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
             ],
           ),
           const SizedBox(height: 20),
-          _buildProgressBar("Attendance", student['attendancePercentage'], Colors.green),
-          const SizedBox(height: 16),
-          _buildProgressBar("Academic Rating", student['academicRating'] * 20, Colors.blue),
-          const SizedBox(height: 16),
-          _buildProgressBar("Behavior Rating", student['behaviorRating'] * 20, Colors.purple),
+          if (_isNotEmpty(student['attendancePercentage']))
+            _buildProgressBar("Attendance", student['attendancePercentage'], Colors.green),
+          if (_isNotEmpty(student['academicRating']))
+            _buildProgressBar("Academic Rating", student['academicRating'] * 20, Colors.blue),
+          if (_isNotEmpty(student['behaviorRating']))
+            _buildProgressBar("Behavior Rating", student['behaviorRating'] * 20, Colors.purple),
         ],
       ),
     );
@@ -713,11 +729,14 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {
-                // TODO: Implement call functionality
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Calling feature coming soon!")),
+              onPressed: (){
+                SnackbarHelper.showInfo(
+                  context,
+                  "Calling ${student['name']}"
                 );
+                final phone = student['phone']?.toString();
+                print("Calling phone: $phone");
+                launchUrl(Uri.parse("tel:$phone"), mode: LaunchMode.externalApplication);
               },
             ),
           ),
@@ -747,5 +766,11 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
         ],
       ),
     );
+  }
+
+  bool _isNotEmpty(dynamic value) {
+    if (value == null) return false;
+    if (value is String && value.trim().isEmpty) return false;
+    return true;
   }
 }
