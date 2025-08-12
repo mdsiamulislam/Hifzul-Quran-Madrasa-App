@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+import 'dart:convert';
 
-import '../../../core/utils/spacing.dart';
+import 'package:flutter/material.dart';
+import 'package:hifzul_quran_madrasa/core/credintial/credintial_data.dart';
+import 'package:http/http.dart' as http;
 import '../../../theme/colors.dart';
 import '../../sms_service/views/send_sms_page.dart';
 import '../../students/views/student_list_page.dart';
@@ -18,6 +20,9 @@ class _HomePageState extends State<HomePage>
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  int totalStudents = 0;
+  bool isLoading = true;
+  List<Map<String, dynamic>> students = [];
 
   @override
   void initState() {
@@ -50,6 +55,28 @@ class _HomePageState extends State<HomePage>
     // Start animations
     _fadeController.forward();
     _slideController.forward();
+
+    // Fetch students from server
+    _getStudents();
+  }
+
+  void _getStudents() async {
+    final response = await http.get(
+      Uri.parse(CredintialData.apiLink),
+    );
+    print("Response Status for server: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      setState(() {
+        isLoading = false;
+        totalStudents = responseBody['data'].length;
+        students = List<Map<String, dynamic>>.from(responseBody['data']);
+      });
+    } else {
+      // Handle error
+      print("Failed to fetch students: ${response.statusCode}");
+    }
   }
 
   @override
@@ -64,7 +91,13 @@ class _HomePageState extends State<HomePage>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: Container(
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: AppColors.primaryGreen,
+              ),
+            )
+          : Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -103,7 +136,9 @@ class _HomePageState extends State<HomePage>
                           ),
 
                           // Quick Stats
-                          _buildQuickStats(),
+                          _buildQuickStats(
+                            totalStudents,
+                          ),
                         ],
                       ),
                     ),
@@ -252,7 +287,10 @@ class _HomePageState extends State<HomePage>
                   gradient: const [Color(0xFF667eea), Color(0xFF764ba2)],
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const StudentListPage()),
+                    MaterialPageRoute(builder: (_) => StudentListPage(
+                      students: students,
+                    ),
+                    ),
                   ),
                 ),
               ),
@@ -437,7 +475,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildQuickStats() {
+  Widget _buildQuickStats(int totalStudents) {
     return Container(
       margin: const EdgeInsets.only(top: 20),
       padding: const EdgeInsets.all(20),
@@ -451,7 +489,7 @@ class _HomePageState extends State<HomePage>
       ),
       child: Row(
         children: [
-          _buildStatItem("Total Students", "156", Icons.people),
+          _buildStatItem("Total Students", totalStudents.toString(), Icons.people),
           const SizedBox(width: 20),
           Container(
             height: 30,

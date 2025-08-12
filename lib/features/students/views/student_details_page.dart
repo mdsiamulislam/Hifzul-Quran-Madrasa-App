@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../theme/colors.dart';
-import '../../sms_service/views/send_sms_page.dart';
 
 class StudentDetailsPage extends StatefulWidget {
   final Map<String, dynamic> student;
@@ -236,7 +234,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
               _buildInfoRow("Father's Name", student['fatherName']),
               _buildInfoRow("Mother's Name", student['motherName']),
               _buildInfoRow("Date of Birth", student['dateOfBirth']),
-              _buildInfoRow("Age", "${student['age']} years"),
+              _buildInfoRow("Age", "${student['age'].toString()} years"),
               _buildInfoRow("Gender", student['gender']),
               _buildInfoRow("Status", student['status']),
             ],
@@ -248,8 +246,8 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
             "Contact Information",
             Icons.contact_phone_outlined,
             [
-              _buildInfoRow("Student Phone", student['phone'], isCopiable: true),
-              _buildInfoRow("Guardian Phone", student['guardianPhone'], isCopiable: true),
+              _buildInfoRow("Student Phone", student['phone'].toString(), isCopiable: true),
+              _buildInfoRow("Guardian Phone", student['guardianPhone'].toString().toString(), isCopiable: true),
               _buildInfoRow("Emergency Contact", student['emergencyContact'], isCopiable: true),
               _buildInfoRow("Email", student['email'], isCopiable: true),
               _buildInfoRow("Address", student['address']),
@@ -270,7 +268,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
             Icons.school_outlined,
             [
               _buildInfoRow("Class", "${student['class']}-${student['section']}"),
-              _buildInfoRow("Roll Number", "${student['rollNumber']}"),
+              _buildInfoRow("Roll Number", student['rollNumber'].toString()),
               _buildInfoRow("Admission Date", student['admissionDate']),
               _buildInfoRow("Last Attendance", student['lastAttendance']),
             ],
@@ -283,7 +281,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
             Icons.menu_book_outlined,
             [
               _buildInfoRow("Current Progress", student['currentProgress']),
-              _buildInfoRow("Total Surahs Memorized", "${student['totalSurahMemorized']}"),
+              _buildInfoRow("Total Surahs Memorized", student['totalSurahMemorized'].toString()),
             ],
           ),
 
@@ -297,9 +295,11 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
           _buildInfoSection(
             "Extra Activities",
             Icons.sports_soccer_outlined,
-            student['extraActivities'].map<Widget>((activity) =>
-                _buildActivityChip(activity)
-            ).toList(),
+            student['extraActivities']
+                .toString()
+                .split(';')
+                .map<Widget>((activity) => _buildActivityChip(activity.trim()))
+                .toList(),
           ),
         ],
       ),
@@ -473,7 +473,8 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
     );
   }
 
-  Widget _buildInfoRow(String label, String value, {bool isCopiable = false}) {
+  Widget _buildInfoRow(String label, dynamic value, {bool isCopiable = false}) {
+    final displayValue = value?.toString() ?? '';
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -494,7 +495,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
               children: [
                 Expanded(
                   child: Text(
-                    value,
+                    displayValue,
                     style: const TextStyle(
                       color: Color(0xFF1F2937),
                       fontWeight: FontWeight.w600,
@@ -504,7 +505,7 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
                 if (isCopiable)
                   GestureDetector(
                     onTap: () {
-                      Clipboard.setData(ClipboardData(text: value));
+                      Clipboard.setData(ClipboardData(text: displayValue));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("$label copied to clipboard")),
                       );
