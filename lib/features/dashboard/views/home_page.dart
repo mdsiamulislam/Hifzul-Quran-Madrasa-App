@@ -2,10 +2,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hifzul_quran_madrasa/core/credintial/credintial_data.dart';
+import 'package:hifzul_quran_madrasa/core/utils/snackbar_helper.dart';
 import 'package:http/http.dart' as http;
+import '../../../core/utils/spacing.dart';
 import '../../../theme/colors.dart';
 import '../../sms_service/views/send_sms_page.dart';
 import '../../students/views/student_list_page.dart';
+import '../widgets/header_widget.dart';
+import '../widgets/welcome_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -117,7 +121,7 @@ class _HomePageState extends State<HomePage>
               child: Column(
                 children: [
                   // Header Section
-                  _buildHeader(context),
+                  HeaderWidget(context: context),
 
                   // Main Content
                   Expanded(
@@ -126,9 +130,9 @@ class _HomePageState extends State<HomePage>
                       child: Column(
                         children: [
                           // Welcome Section
-                          _buildWelcomeSection(),
+                          WelcomeWidget(),
 
-                          const SizedBox(height: 40),
+                          Spacing.h24,
 
                           // Action Cards
                           Expanded(
@@ -148,124 +152,6 @@ class _HomePageState extends State<HomePage>
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24.0),
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.2),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(30),
-          bottomRight: Radius.circular(30),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.cyan.withOpacity(0.1),
-            blurRadius: 20,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF00D4FF), Color(0xFF0099CC)],
-              ),
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.cyan.withOpacity(0.3),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.mosque,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Hifzul Quran Madrasa",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                Text(
-                  "Digital Management System",
-                  style: TextStyle(
-                    color: Color(0xFF00D4FF),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.notifications_outlined,
-              color: Colors.white70,
-              size: 20,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWelcomeSection() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: Colors.white.withOpacity(0.1),
-          width: 1,
-        ),
-      ),
-      child: const Column(
-        children: [
-          Text(
-            "Welcome Back",
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            "Manage your madrasa efficiently",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -305,7 +191,9 @@ class _HomePageState extends State<HomePage>
                   gradient: const [Color(0xFF11998e), Color(0xFF38ef7d)],
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const SendSmsPage()),
+                    MaterialPageRoute(builder: (_) => SendSmsPage(
+                      students: students
+                    )),
                   ),
                 ),
               ),
@@ -327,8 +215,9 @@ class _HomePageState extends State<HomePage>
                   gradient: const [Color(0xFFf093fb), Color(0xFFf5576c)],
                   onTap: () {
                     // TODO: Navigate to attendance page
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Coming Soon!")),
+                    SnackbarHelper.showInfo(
+                      context,
+                      "Coming Soon!",
                     );
                   },
                 ),
@@ -341,8 +230,9 @@ class _HomePageState extends State<HomePage>
                   gradient: const [Color(0xFF4facfe), Color(0xFF00f2fe)],
                   onTap: () {
                     // TODO: Navigate to reports page
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Coming Soon!")),
+                    SnackbarHelper.showInfo(
+                      context,
+                      "Coming Soon!",
                     );
                   },
                 ),
@@ -355,8 +245,9 @@ class _HomePageState extends State<HomePage>
                   gradient: const [Color(0xFFa8edea), Color(0xFFfed6e3)],
                   onTap: () {
                     // TODO: Navigate to settings page
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Coming Soon!")),
+                    SnackbarHelper.showInfo(
+                      context,
+                      "Coming Soon!",
                     );
                   },
                 ),
@@ -546,3 +437,5 @@ class _HomePageState extends State<HomePage>
     );
   }
 }
+
+

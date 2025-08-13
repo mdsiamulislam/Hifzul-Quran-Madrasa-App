@@ -521,8 +521,9 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
                   GestureDetector(
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: displayValue));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("$label copied to clipboard")),
+                      SnackbarHelper.showInfo(
+                        context,
+                        "Copied to clipboard: $displayValue",
                       );
                     },
                     child: const Icon(
