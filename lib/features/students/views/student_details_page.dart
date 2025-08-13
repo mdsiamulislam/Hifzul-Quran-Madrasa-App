@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hifzul_quran_madrasa/features/students/controllers/generate_student_report.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/utils/snackbar_helper.dart';
@@ -745,8 +746,8 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
           Expanded(
             flex: 2,
             child: ElevatedButton.icon(
-              icon: const Icon(Icons.message, color: Colors.white),
-              label: const Text("Send SMS", style: TextStyle(color: Colors.white)),
+              icon: const Icon(Icons.print, color: Colors.white),
+              label: const Text("Print Student Report", style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E40AF),
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -754,14 +755,9 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onPressed: () {
-                SnackbarHelper.showInfo(
-                  context,
-                  "Sending SMS to ${student['name']}"
-                );
-                final phone = student['phone']?.toString();
-                print("Sending SMS to phone: $phone");
-                launchUrl(Uri.parse("sms:$phone"), mode: LaunchMode.externalApplication);
+              onPressed: () async {
+                GenerateStudentReport report = GenerateStudentReport();
+                await report.generateStudentReport(student);
               },
             ),
           ),
