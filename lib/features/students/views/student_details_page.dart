@@ -755,12 +755,13 @@ class _StudentDetailsPageState extends State<StudentDetailsPage>
                 ),
               ),
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (_) => SendSmsPage(preselectedStudent: student),
-                //   ),
-                // );
+                SnackbarHelper.showInfo(
+                  context,
+                  "Sending SMS to ${student['name']}"
+                );
+                final phone = student['phone']?.toString();
+                print("Sending SMS to phone: $phone");
+                launchUrl(Uri.parse("sms:$phone"), mode: LaunchMode.externalApplication);
               },
             ),
           ),

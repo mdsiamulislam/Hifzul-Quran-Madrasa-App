@@ -18,7 +18,6 @@ class _SendSmsPageState extends State<SendSmsPage>
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
-
   Map<String, dynamic>? selectedStudent;
   List<Map<String, dynamic>> selectedStudents = [];
   bool isBulkMode = false;
@@ -26,10 +25,6 @@ class _SendSmsPageState extends State<SendSmsPage>
   String selectedRecipientType = 'Student';
   int characterCount = 0;
   int estimatedSmsCount = 1;
-
-
-
-  // Predefined message templates
 
   @override
   void initState() {
@@ -78,9 +73,13 @@ class _SendSmsPageState extends State<SendSmsPage>
     }).toList();
   }
 
+  // Helper method to safely convert any value to string
+  String _safeToString(dynamic value) {
+    return value?.toString() ?? '';
+  }
+
   @override
   Widget build(BuildContext context) {
-
     List<Map<String, dynamic>> students = widget.students;
 
     return Scaffold(
@@ -295,7 +294,7 @@ class _SendSmsPageState extends State<SendSmsPage>
               borderRadius: BorderRadius.circular(25),
             ),
             child: Icon(
-              student['gender'] == 'Female' ? Icons.woman : Icons.man,
+              _safeToString(student['gender']) == 'Female' ? Icons.woman : Icons.man,
               color: Colors.white,
               size: 24,
             ),
@@ -306,7 +305,7 @@ class _SendSmsPageState extends State<SendSmsPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  student['name'],
+                  _safeToString(student['name']),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -315,7 +314,7 @@ class _SendSmsPageState extends State<SendSmsPage>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "ID: ${student['id'].toString()} • ${student['class']}-${student['section']}",
+                  "ID: ${_safeToString(student['id'])} • ${_safeToString(student['class'])}-${_safeToString(student['section'])}",
                   style: const TextStyle(
                     color: Color(0xFF6B7280),
                     fontSize: 12,
@@ -378,13 +377,13 @@ class _SendSmsPageState extends State<SendSmsPage>
                 leading: CircleAvatar(
                   backgroundColor: const Color(0xFF1E40AF),
                   child: Icon(
-                    student['gender'] == 'Female' ? Icons.woman : Icons.man,
+                    _safeToString(student['gender']) == 'Female' ? Icons.woman : Icons.man,
                     color: Colors.white,
                     size: 20,
                   ),
                 ),
-                title: Text(student['name']),
-                subtitle: Text("${student['id'].toString()} • ${student['class']}-${student['section']}"),
+                title: Text(_safeToString(student['name'])),
+                subtitle: Text("${_safeToString(student['id'])} • ${_safeToString(student['class'])}-${_safeToString(student['section'])}"),
                 onTap: () {
                   setState(() {
                     selectedStudent = student;
@@ -461,12 +460,12 @@ class _SendSmsPageState extends State<SendSmsPage>
                     }
                   });
                 },
-                title: Text(student['name']),
-                subtitle: Text("${student['id'].toString()} • ${student['class']}-${student['section']}"),
+                title: Text(_safeToString(student['name'])),
+                subtitle: Text("${_safeToString(student['id'])} • ${_safeToString(student['class'])}-${_safeToString(student['section'])}"),
                 secondary: CircleAvatar(
                   backgroundColor: const Color(0xFF1E40AF),
                   child: Icon(
-                    student['gender'] == 'Female' ? Icons.woman : Icons.man,
+                    _safeToString(student['gender']) == 'Female' ? Icons.woman : Icons.man,
                     color: Colors.white,
                     size: 20,
                   ),
@@ -706,25 +705,117 @@ class _SendSmsPageState extends State<SendSmsPage>
   String _getRecipientPhone(Map<String, dynamic> student) {
     switch (selectedRecipientType) {
       case 'Guardian':
-        return student['guardianPhone'];
+        return _safeToString(student['guardianPhone']);
       case 'Emergency Contact':
-        return student['emergencyContact'];
+        return _safeToString(student['emergencyContact']);
       default:
-        return student['phone'];
+        return _safeToString(student['phone']);
     }
   }
 
   void _sendSMS() {
+    final String message = _msgController.text.trim();
+
     if (isBulkMode) {
       final recipientCount = selectedStudents.length;
-      SnackbarHelper.showSuccess(
-        context,
-        "SMS sent successfully to $recipientCount students",
+
+      // Show detailed snackbar with recipient count and message preview
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "✅ SMS sent to $recipientCount students",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Recipients: $selectedRecipientType contacts",
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "Message: ${message.length > 50 ? '${message.substring(0, 50)}...' : message}",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green[600],
+          duration: const Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       );
     } else {
-      SnackbarHelper.showSuccess(
-        context,
-        "SMS sent successfully to ${selectedStudent!['name']}",
+      final student = selectedStudent!;
+      final recipientPhone = _getRecipientPhone(student);
+
+      // Show detailed snackbar with student info and message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "✅ SMS sent successfully!",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "To: ${_safeToString(student['name'])}",
+                style: const TextStyle(fontSize: 14),
+              ),
+              Text(
+                "Phone: $recipientPhone ($selectedRecipientType)",
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "Message: ${message.length > 50 ? '${message.substring(0, 50)}...' : message}",
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green[600],
+          duration: const Duration(seconds: 5),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       );
     }
 
