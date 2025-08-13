@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hifzul_quran_madrasa/core/credintial/credintial_data.dart';
 import 'package:hifzul_quran_madrasa/core/utils/snackbar_helper.dart';
 import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 import '../../../core/utils/spacing.dart';
 import '../../../theme/colors.dart';
 import '../../sms_service/views/send_sms_page.dart';
@@ -94,65 +95,82 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      body: isLoading
-          ? Center(
-              child: CircularProgressIndicator(
-                color: AppColors.primaryGreen,
-              ),
-            )
-          : Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0F0F23),
-              Color(0xFF1A1A2E),
-              Color(0xFF16213E),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: Column(
-                children: [
-                  // Header Section
-                  HeaderWidget(context: context),
-
-                  // Main Content
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        children: [
-                          // Welcome Section
-                          WelcomeWidget(),
-
-                          Spacing.h24,
-
-                          // Action Cards
-                          Expanded(
-                            child: _buildActionCards(context),
-                          ),
-
-                          // Quick Stats
-                          _buildQuickStats(
-                            totalStudents,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+    return Stack(
+      children: [
+        Scaffold(
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFF0F0F23),
+                  Color(0xFF1A1A2E),
+                  Color(0xFF16213E),
                 ],
+              ),
+            ),
+            child: SafeArea(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: Column(
+                    children: [
+                      // Header Section
+                      HeaderWidget(context: context),
+
+                      // Main Content
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Column(
+                            children: [
+                              // Welcome Section
+                              WelcomeWidget(),
+
+                              Spacing.h24,
+
+                              // Action Cards
+                              Expanded(
+                                child: _buildActionCards(context),
+                              ),
+
+                              // Quick Stats
+                              _buildQuickStats(
+                                totalStudents,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
         ),
-      ),
+        if (isLoading)
+          Positioned.fill(
+            child: AbsorbPointer(
+              absorbing: true,
+              child: Container(
+                color: Colors.black.withOpacity(0.4),
+                child: Center(
+                  child: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: Lottie.asset(
+                      'assets/anim/hqm.json',
+                      repeat: true,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
