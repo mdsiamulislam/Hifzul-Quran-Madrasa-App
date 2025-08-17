@@ -50,6 +50,9 @@ dependencies:
   #Animation
   lottie: ^3.3.1
 
+  # Load ENV variables
+  flutter_dotenv: ^5.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

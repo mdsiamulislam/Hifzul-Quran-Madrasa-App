@@ -9,6 +9,7 @@ import '../../../core/utils/spacing.dart';
 import '../../../theme/colors.dart';
 import '../../sms_service/views/send_sms_page.dart';
 import '../../students/views/student_list_page.dart';
+import '../controllers/sms_controller/sms_balance_check.dart';
 import '../widgets/header_widget.dart';
 import '../widgets/welcome_widget.dart';
 
@@ -26,6 +27,7 @@ class _HomePageState extends State<HomePage>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   int totalStudents = 0;
+  int _remainingBalance = 0;
   bool isLoading = true;
   List<Map<String, dynamic>> students = [];
 
@@ -63,6 +65,8 @@ class _HomePageState extends State<HomePage>
 
     // Fetch students from server
     _getStudents();
+    // Fetch SMS balance
+    _fetchBalance();
   }
 
   void _getStudents() async {
@@ -81,6 +85,23 @@ class _HomePageState extends State<HomePage>
     } else {
       // Handle error
       print("Failed to fetch students: ${response.statusCode}");
+    }
+  }
+
+  void _fetchBalance() async {
+    try {
+      SMSBalanceCheck smsCheck = SMSBalanceCheck();
+      int balance = await smsCheck.getBalance();
+
+      setState(() {
+        _remainingBalance = balance;
+      });
+    } catch (e) {
+      print("Error fetching balance: $e");
+      SnackbarHelper.showError(
+        context,
+        "Failed to fetch SMS balance. Please try again later.",
+      );
     }
   }
 
@@ -407,7 +428,7 @@ class _HomePageState extends State<HomePage>
             color: Colors.white.withOpacity(0.2),
           ),
           const SizedBox(width: 20),
-          _buildStatItem("Messages Sent", "2.4K", Icons.message),
+          _buildStatItem("Remaining SMS", _remainingBalance.toString(), Icons.message),
           const SizedBox(width: 20),
           Container(
             height: 30,
