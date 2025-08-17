@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hifzul_quran_madrasa/features/sms_service/controllers/send_sms_controller.dart';
 import '../../../core/constents/templates/message_templates.dart';
 import '../../../core/utils/snackbar_helper.dart';
 
@@ -72,6 +73,7 @@ class _SendSmsPageState extends State<SendSmsPage>
           student['class'].toString().toLowerCase().contains(searchQuery.toLowerCase());
     }).toList();
   }
+
 
   // Helper method to safely convert any value to string
   String _safeToString(dynamic value) {
@@ -713,110 +715,33 @@ class _SendSmsPageState extends State<SendSmsPage>
     }
   }
 
-  void _sendSMS() {
+  void _sendSMS() async {
     final String message = _msgController.text.trim();
 
     if (isBulkMode) {
+      
       final recipientCount = selectedStudents.length;
 
-      // Show detailed snackbar with recipient count and message preview
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "✅ SMS sent to $recipientCount students",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Recipients: $selectedRecipientType contacts",
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  "Message: ${message.length > 50 ? '${message.substring(0, 50)}...' : message}",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.green[600],
-          duration: const Duration(seconds: 5),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+      final String recipientNumbers = selectedStudents
+          .map((student) => _getRecipientPhone(student))
+          .where((number) => number.isNotEmpty)
+          .join(',');
     } else {
       final student = selectedStudent!;
-      final recipientPhone = _getRecipientPhone(student);
+      final recipientPhone = _getRecipientPhone(student).toString();
 
-      // Show detailed snackbar with student info and message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "✅ SMS sent successfully!",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "To: ${_safeToString(student['name'])}",
-                style: const TextStyle(fontSize: 14),
-              ),
-              Text(
-                "Phone: $recipientPhone ($selectedRecipientType)",
-                style: const TextStyle(fontSize: 14),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  "Message: ${message.length > 50 ? '${message.substring(0, 50)}...' : message}",
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.green[600],
-          duration: const Duration(seconds: 5),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      );
+      print("Sending SMS to $recipientPhone: $message");
+      try {
+        SMSSender sender = SMSSender();
+        await sender.sendSMS(numbers: recipientPhone, message: message);
+        SnackbarHelper.showSuccess(
+          context,
+          'SMS sent successfully!', // Fixed: Use appropriate success message
+        );
+      } catch (e) {
+        print("Error sending SMS: $e");
+      }
+
     }
 
     // Clear the message after sending

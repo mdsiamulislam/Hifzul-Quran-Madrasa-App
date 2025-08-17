@@ -9,7 +9,7 @@ class SMSBalanceCheck {
   Future<int> getBalance() async {
 
     final response = await http.get(
-      Uri.parse("${APIEndpoints.smsBalance}?ApiKey=NDkxNjUzNDgxNDcxNzU1MzIxMDY3NDMxNzcxMTk"),
+      Uri.parse("${APIEndpoints.smsBalance}?ApiKey="),
     );
     print("SMS Balance Check Response: ${response.body}");
     if (response.statusCode == 200) {
