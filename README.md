@@ -1,16 +1,19 @@
-# hifzul_quran_madrasa
+# হিফজুল কুরআন মাদ্রাসা অ্যাপ
 
-A new Flutter project.
+![ব্যানার](assets/anim/hqm.png)
 
-## Getting Started
+হিফজুল কুরআন মাদ্রাসা অ্যাপটি একটি আধুনিক, ব্যবহার-বান্ধব এবং ফিচার-সমৃদ্ধ ফ্লাটার অ্যাপ, যা মাদ্রাসার ছাত্রদের তথ্য, ড্যাশবোর্ড, এসএমএস সার্ভিস, থিম এবং লোকালাইজেশনসহ নানা সুবিধা প্রদান করে। অ্যাপটি সহজে পরিচালনা, তথ্য সংরক্ষণ ও দ্রুত যোগাযোগের জন্য ডিজাইন করা হয়েছে।
 
-This project is a starting point for a Flutter application.
+## প্রধান ফিচারসমূহ
+- ছাত্রদের তথ্য সংরক্ষণ ও ব্যবস্থাপনা
+- ড্যাশবোর্ড
+- এসএমএস সার্ভিস
+- থিম সাপোর্ট (ডার্ক/লাইট)
+- লোকালাইজেশন
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## অবদান
+নতুন ফিচার, বাগ ফিক্স বা ডকুমেন্টেশন আপডেটের জন্য Pull Request পাঠাতে পারেন।
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## লাইসেন্স
+এই প্রকল্পটি ওপেন সোর্স এবং আপনার ব্যবহারের জন্য উন্মুক্ত।
