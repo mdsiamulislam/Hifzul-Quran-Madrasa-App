@@ -2,21 +2,29 @@ import 'dart:convert';
 import 'package:hifzul_quran_madrasa/core/constents/string_constents/api_endpoints.dart';
 import 'package:http/http.dart' as http;
 
+import '../../../core/constents/string_constents/api_key.dart';
+
 class SMSSender {
   Future<void> sendSMS({required String numbers, required String message}) async {
+
+    // Debugging print statements
+    print("Sending SMS to: $numbers");
+    print("Message: $message");
+
     final response = await http.post(
       Uri.parse(APIEndpoints.smsSend),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({
-        "ApiKey": "",
+      body: {
+        "ApiKey": APIKey.SMSAPIKey,
         "SenderID": "8809617611819",
-        "Numbers": numbers,
-        "Message": message,
-        "IsUnicode": 1,
-      }),
+        "number": numbers,
+        "sms": message,
+        "IsUnicode": "1",
+      },
     );
+
+    print("SMS Send Response: ${response.body}");
+    // Print response status code
+    print("Response Status Code for this: ${response.statusCode}");
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

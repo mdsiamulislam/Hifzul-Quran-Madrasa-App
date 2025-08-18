@@ -719,18 +719,24 @@ class _SendSmsPageState extends State<SendSmsPage>
     final String message = _msgController.text.trim();
 
     if (isBulkMode) {
-      
-      final recipientCount = selectedStudents.length;
-
       final String recipientNumbers = selectedStudents
           .map((student) => _getRecipientPhone(student))
           .where((number) => number.isNotEmpty)
           .join(',');
+      try {
+        SMSSender sender = SMSSender();
+        await sender.sendSMS(numbers: recipientNumbers, message: message);
+        SnackbarHelper.showSuccess(
+          context,
+          'SMS sent successfully!', // Fixed: Use appropriate success message
+        );
+      } catch (e) {
+        print("Error sending SMS: $e");
+      }
+
     } else {
       final student = selectedStudent!;
-      final recipientPhone = _getRecipientPhone(student).toString();
-
-      print("Sending SMS to $recipientPhone: $message");
+      String recipientPhone = _getRecipientPhone(student).toString();
       try {
         SMSSender sender = SMSSender();
         await sender.sendSMS(numbers: recipientPhone, message: message);

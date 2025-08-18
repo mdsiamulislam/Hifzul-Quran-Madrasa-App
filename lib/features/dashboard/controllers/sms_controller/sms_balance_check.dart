@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import '../../../../core/constents/string_constents/api_endpoints.dart';
+import '../../../../core/constents/string_constents/api_key.dart';
 
 class SMSBalanceCheck {
 
   Future<int> getBalance() async {
 
     final response = await http.get(
-      Uri.parse("${APIEndpoints.smsBalance}?ApiKey="),
+      Uri.parse("${APIEndpoints.smsBalance}?ApiKey=${APIKey.SMSAPIKey}"),
     );
     print("SMS Balance Check Response: ${response.body}");
     if (response.statusCode == 200) {
